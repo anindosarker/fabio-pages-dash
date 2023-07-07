@@ -39,6 +39,24 @@ if (typeof window !== "undefined") {
       let activities = JSON.parse(localStorage.getItem("activities")) || [];
       activities.push(activity);
       localStorage.setItem("activities", JSON.stringify(activities));
+
+      // Send the activities data to the API endpoint
+      fetch("http://localhost:3000/api/store", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(activities),
+      })
+        .then((response) => {
+          console.log("Activities data sent successfully");
+        })
+        .catch((error) => {
+          console.error("Error sending activities data:", error);
+        });
+
+      // Clear the activities data from local storage
+      localStorage.removeItem("activities");
     }
   });
 }
