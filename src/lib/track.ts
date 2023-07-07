@@ -6,47 +6,47 @@ const trackActivity = () => {
 
     // Check if the user is visiting a new page
     if (currentPage !== previousPage) {
-      let startTime = parseInt(localStorage.getItem("startTime"));
-      let endTime = new Date().getTime();
+      let startTime = new Date().getTime();
 
       // Check if this is the first page visit
       if (!previousPage) {
-        startTime = endTime;
+        startTime = new Date().getTime();
+        localStorage.setItem("initialLoad", "true"); // Set the flag for the initial load
       } else {
-        savePageVisit(userId, previousPage, startTime, endTime);
+        let endTime = new Date().getTime();
+        let timeSpent = endTime - parseInt(localStorage.getItem("startTime"));
+        savePageVisit(userId, previousPage, currentPage, timeSpent);
       }
 
       // Update the start time for the new page
       localStorage.setItem("startTime", startTime.toString());
     }
-
     // Save the current page for the next iteration
     localStorage.setItem("previousPage", currentPage);
   }
 };
 
-const savePageVisit = (userId, pageUrl, startTime, endTime) => {
+const savePageVisit = (userId, prevPage, currentPage, timeSpent) => {
   let data = {
     userId: userId.toString(),
-    pageUrl,
-    startTime,
-    endTime,
+    prevPage,
+    currentPage,
+    timeSpent,
   };
 
   // Store the data in local storage
-  let visits = localStorage.getItem("visits");
-  if (visits) {
-    visits = JSON.parse(visits);
+  let history = localStorage.getItem("history");
+  if (history) {
+    history = JSON.parse(history);
   } else {
-    visits = [];
+    history = [];
   }
-  visits.push(data);
-  localStorage.setItem("visits", JSON.stringify(visits));
+  history.push(data);
+  localStorage.setItem("history", JSON.stringify(history));
 
   // Console log the data
   console.log(data);
 };
-
 
 const getSessionUserId = () => {
   let userId = localStorage.getItem("userId");
@@ -65,34 +65,33 @@ const generateUserId = () => {
 
 // Only add the event listener on the client-side
 if (typeof window !== "undefined") {
-  window.addEventListener("beforeunload", trackActivity);
-
-  // Calculate average time spent per page when the user leaves the website
-  window.addEventListener("unload", () => {
-    let previousPage = localStorage.getItem("previousPage");
+  window.addEventListener("beforeunload", () => {
+    let currentPage = window.location.href;
     let userId = getSessionUserId();
+    let previousPage = localStorage.getItem("previousPage");
     let startTime = parseInt(localStorage.getItem("startTime"));
     let endTime = new Date().getTime();
+    let timeSpent = endTime - startTime;
 
-    savePageVisit(userId, previousPage, startTime, endTime);
-    calculateAverageTimePerPage(userId);
+    savePageVisit(userId, previousPage, currentPage, timeSpent);
   });
-}
 
-const calculateAverageTimePerPage = (userId) => {
-  let visits = localStorage.getItem("visits");
-  if (visits) {
-    visits = JSON.parse(visits);
-    let totalTime = 0;
-    visits.forEach((visit) => {
-      let visitTime = visit.endTime - visit.startTime;
-      totalTime += visitTime;
-    });
-    let averageTimePerPage = totalTime / visits.length;
-    // set the average time per page in local storage
-    localStorage.setItem("averageTimePerPage", averageTimePerPage.toString());
-    console.log("Average time per page:", averageTimePerPage);
+  window.addEventListener("unload", () => {
+    let currentPage = window.location.href;
+    let userId = getSessionUserId();
+    let previousPage = localStorage.getItem("previousPage");
+    let startTime = parseInt(localStorage.getItem("startTime"));
+    let endTime = new Date().getTime();
+    let timeSpent = endTime - startTime;
+
+    savePageVisit(userId, previousPage, currentPage, timeSpent);
+  });
+
+  // Check if the function has already been called during the initial load
+  let initialLoad = localStorage.getItem("initialLoad");
+  if (!initialLoad) {
+    trackActivity();
   }
-};
+}
 
 export default trackActivity;
