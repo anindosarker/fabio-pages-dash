@@ -10,7 +10,8 @@ const trackActivity = () => {
 
       // Check if this is the first page visit
       if (!previousPage) {
-        startTime = new Date().getTime();
+        let pageVisit = createPageVisitObject(userId, currentPage, null);
+        savePageVisit(pageVisit);
       } else {
         let endTime = new Date().getTime();
         let timeSpent = endTime - parseInt(localStorage.getItem("startTime"));
@@ -32,6 +33,7 @@ const trackActivity = () => {
     localStorage.setItem("previousPage", currentPage);
   }
 };
+
 const getSessionUserId = () => {
   let userId = localStorage.getItem("userId");
 
@@ -79,11 +81,15 @@ const updatePageVisit = (userId, pageUrl, timeSpent) => {
 
   // Update the time spent value for the page visit object
   if (pageVisitId) {
-    pageVisits[pageVisitId].timeSpent = timeSpent;
+    let pageVisit = pageVisits[pageVisitId];
+    if (pageVisit.timeSpent) {
+      pageVisit.timeSpent += timeSpent;
+    } else {
+      pageVisit.timeSpent = timeSpent;
+    }
     savePageVisits(pageVisits);
   }
 };
-
 // Only add the event listener on the client-side
 if (typeof window !== "undefined") {
   window.addEventListener("beforeunload", () => {
