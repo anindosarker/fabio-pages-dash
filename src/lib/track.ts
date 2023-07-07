@@ -11,10 +11,25 @@ const trackActivity = () => {
       if (previousUrl !== null) {
         let endTime = new Date().getTime();
         let timeSpent = endTime - parseInt(localStorage.getItem("startTime"));
-        const activity = { url: previousUrl, timeSpent: timeSpent };
+        let os = navigator.platform;
+        let title = document.title;
+        let language = navigator.language;
+        let user_agent = navigator.userAgent;
+
+        const activity = {
+          url_referrer: previousUrl,
+          time_spent: timeSpent,
+          os: os,
+          title: title,
+          language: language,
+          user_agent: user_agent,
+        };
         let activities = JSON.parse(localStorage.getItem("activities")) || [];
         activities.push(activity);
         localStorage.setItem("activities", JSON.stringify(activities));
+
+        // Send the activity data to the API endpoint
+        sendData(activity);
       }
 
       // Update the start time for the new page
@@ -27,7 +42,7 @@ const trackActivity = () => {
 
 // Only add the event listener on the client-side
 if (typeof window !== "undefined") {
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener("beforeunload", async () => {
     let previousUrl = localStorage.getItem("previousUrl");
     let startTime = parseInt(localStorage.getItem("startTime"));
     let endTime = new Date().getTime();
@@ -35,31 +50,51 @@ if (typeof window !== "undefined") {
 
     // Update the analytics data with the time spent on the previous page
     if (previousUrl !== null) {
-      const activity = { url: previousUrl, timeSpent: timeSpent };
+      let os = navigator.platform;
+      let title = document.title;
+      let language = navigator.language;
+      let user_agent = navigator.userAgent;
+
+      const activity = {
+        url_referrer: previousUrl,
+        time_spent: timeSpent,
+        os: os,
+        title: title,
+        language: language,
+        user_agent: user_agent,
+      };
+
       let activities = JSON.parse(localStorage.getItem("activities")) || [];
       activities.push(activity);
       localStorage.setItem("activities", JSON.stringify(activities));
 
-      // Send the activities data to the API endpoint
-      fetch("http://localhost:3000/api/store", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(activities),
-      })
-        .then((response) => {
-          console.log("Activities data sent successfully");
-        })
-        .catch((error) => {
-          console.error("Error sending activities data:", error);
-        });
+      // Send the activity data to the API endpoint
+      sendData(activity);
 
       // Clear the activities data from local storage
       localStorage.removeItem("activities");
     }
   });
 }
+
+const sendData = async (activity) => {
+  const fetchUrl = "http://localhost:3001/api/store";
+  // const fetchUrl = "http://localhost:3000/api/web/access";
+
+  await fetch(fetchUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(activity),
+  })
+    .then((response) => {
+      console.log("Activity data sent successfully", response.json());
+    })
+    .catch((error) => {
+      console.error("Error sending activity data:", error);
+    });
+};
 
 // Start tracking time when the page is loaded
 trackActivity();
