@@ -11,7 +11,6 @@ const trackActivity = () => {
       // Check if this is the first page visit
       if (!previousPage) {
         startTime = new Date().getTime();
-        localStorage.setItem("initialLoad", "true"); // Set the flag for the initial load
       } else {
         let endTime = new Date().getTime();
         let timeSpent = endTime - parseInt(localStorage.getItem("startTime"));
@@ -87,11 +86,7 @@ if (typeof window !== "undefined") {
     savePageVisit(userId, previousPage, currentPage, timeSpent);
   });
 
-  // Check if the function has already been called during the initial load
-  let initialLoad = localStorage.getItem("initialLoad");
-  if (!initialLoad) {
-    trackActivity();
-  }
+
 }
 
 export default trackActivity;
