@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import trackActivity from "@/lib/track";
 import trackAnalytics from "@/lib/track2";
+import track3 from "@/lib/track3";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -11,8 +12,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     const handleRouteChange = () => {
-      // trackActivity();
-      trackAnalytics();
+      trackActivity();
+      // track3();
+      // trackAnalytics();
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);

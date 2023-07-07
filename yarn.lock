@@ -2355,6 +2355,11 @@ thenify-all@^1.0.0:
   dependencies:
     any-promise "^1.0.0"
 
+timeme.js@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/timeme.js/-/timeme.js-2.1.0.tgz#2a74aa883bb69b28eecae46e2e2a8ee08c2ef499"
+  integrity sha512-2IAW0wqXAEVD8Vh+gpSqnsglLjnb06dDT9ypOsfKEqUrRMelsXW5hexfKIKg2woGSbBxp7zqbPYrMWZNdYYgDQ==
+
 titleize@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/titleize/-/titleize-3.0.0.tgz#71c12eb7fdd2558aa8a44b0be83b8a76694acd53"

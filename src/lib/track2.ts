@@ -9,8 +9,10 @@ interface AnalyticsData {
   };
 }
 
-const trackAnalytics = (userId: string) => {
-  let analytics: AnalyticsData = JSON.parse(localStorage.getItem("analytics")) || {};
+const trackAnalytics = () => {
+  let userId = getSessionUserId();
+  let analytics: AnalyticsData =
+    JSON.parse(localStorage.getItem("analytics")) || {};
   let previousUrl = window.location.pathname;
 
   const onRouteChange = () => {
@@ -49,17 +51,17 @@ const trackAnalytics = (userId: string) => {
       const dt = (d.getTime() - analytics[url].endTime) / 1000;
       analytics[previousUrl].timeSpent += dt;
       analytics[previousUrl].endTime = d.getTime();
-      const option = {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(analytics[url]),
-      };
-      fetch(PERF_URL, { ...option })
-        .then((response) => response.json())
-        .catch((err) => console.log(err));
+      // const option = {
+      //   method: "POST",
+      //   headers: {
+      //     Accept: "application/json",
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(analytics[url]),
+      // };
+      // fetch(PERF_URL, { ...option })
+      //   .then((response) => response.json())
+      //   .catch((err) => console.log(err));
     } else {
       // Reset analytics
       const url = window.location.pathname;
@@ -77,8 +79,8 @@ const trackAnalytics = (userId: string) => {
       previousUrl = url;
       analytics[url].startTime = d.getTime();
       analytics[url].endTime = d.getTime();
-      localStorage.setItem("analytics", JSON.stringify(analytics));
     }
+    localStorage.setItem("analytics", JSON.stringify(analytics));
   };
 
   document.addEventListener("visibilitychange", onVisibilityChange, {
@@ -108,6 +110,21 @@ const trackAnalytics = (userId: string) => {
     };
   }
   localStorage.setItem("analytics", JSON.stringify(analytics));
+};
+
+const getSessionUserId = () => {
+  let userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    userId = generateUserId();
+    localStorage.setItem("userId", userId);
+  }
+
+  return userId;
+};
+
+const generateUserId = () => {
+  return "user_" + Date.now();
 };
 
 export default trackAnalytics;
